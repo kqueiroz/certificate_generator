@@ -2,12 +2,17 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.graphics.barcode.qr import QrCodeWidget
 from reportlab.graphics.shapes import Drawing
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import SimpleDocTemplate, Paragraph
 from PyPDF2 import PdfFileWriter, PdfFileReader
 from reportlab.platypus import Spacer
 from reportlab.platypus import SimpleDocTemplate
 from reportlab.lib.pagesizes import letter, landscape
 import io
+
+pdfmetrics.registerFont(
+    TTFont('Comfortaa', "fonts/Comfortaa/Comfortaa-VariableFont_wght.ttf"))
 
 def create_title(text):
     styles = getSampleStyleSheet()
@@ -19,9 +24,21 @@ def create_title(text):
 def create_paragraph(text):
     paragraph_style = ParagraphStyle(
         name='Normal',
-        fontSize=12,
+        fontSize=18,
         leading=24,
-        alignment=4,
+        alignment=1,
+        fontName="Comfortaa"
+    )
+    paragraph = Paragraph(text, paragraph_style)
+    return paragraph
+
+def create_name(text):
+    paragraph_style = ParagraphStyle(
+        name='Normal',
+        fontSize=50,
+        leading=55,
+        alignment=1,
+        fontName = "Comfortaa"
     )
     paragraph = Paragraph(text, paragraph_style)
     return paragraph
@@ -58,10 +75,10 @@ def create_qr_code(text):
     return d
 
 
-def pdf_generator(participant):
+def pdf_generator(participant, data):
     buffer = io.BytesIO()
 
-    doc = SimpleDocTemplate("files/certificado.pdf",
+    doc = SimpleDocTemplate("files/modelos/certificado.pdf",
                             pagesize=landscape(letter),
                             rightMargin=72,
                             leftMargin=72,
@@ -69,24 +86,24 @@ def pdf_generator(participant):
                             bottomMargin=18,
                             title='Certificado')
     flowables = []
-    title = create_title("CERTIFICADO")
-    paragraph = create_paragraph(
-        "Certificamos que " + participant + " participou do Sertão Ciência, que ocorreu entre 01/12/2020 e 15/12/2020, com carga horária total de 15 horas.")
-    line = create_line()
-    assinatura = create_assinatura('Coordenador do Evento', 1)
+    # title = create_title("CERTIFICADO")
+    name = create_name(str(participant).upper())
+    description = create_paragraph('Pela participação como Avaliador(a) na I Feira de Ciências Virtual '
+                                   'Sertão Ciência no dia '+str(int(data))+' de Dezembro de 2020 '
+                                   'com carga horária de 08 horas.')
 
     flowables.append(Spacer(1, 0.1 * 600))
-    flowables.append(title)
-    flowables.append(Spacer(1, 0.1 * 400))
-    flowables.append(paragraph)
-    flowables.append(Spacer(1, 0.1 * 90))
+    flowables.append(Spacer(1, 0.1 * 1200))
+    flowables.append(name)
+    flowables.append(Spacer(1, 0.1 * 200))
+    flowables.append(description)
     flowables.append(Spacer(1, 0.1 * 800))
     flowables.append(Spacer(1, 0.1 * 800))
-    flowables.append(line)
-    flowables.append(assinatura)
 
-    flowables.append(Spacer(1, 0.1 * 800))
-    flowables.append(create_qr_code('123456890987654321'))
+    # flowables.append(assinatura)
+
+    # flowables.append(Spacer(1, 0.1 * 800))
+    # flowables.append(create_qr_code('123456890987654321'))
     doc.build(flowables)
 
 

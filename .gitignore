@@ -1,7 +1,9 @@
 credentials.py
-data/inscritos.xlsx
+data/
 .idea
 __pycache__
 venv
-files/certificado.pdf
-files/saida-certificado.pdf
+files/modelos/
+files/avaliadores/
+files/participantes/
+fonts/
